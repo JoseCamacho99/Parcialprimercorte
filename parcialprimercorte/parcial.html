@@ -1,0 +1,528 @@
+﻿<!DOCTYPE html>
+
+<html>
+
+    <head>
+
+        <title>Parcial</title>
+
+        <style>
+
+            html, body { margin: 0; padding: 0; overflow: hidden; }
+
+            #info {
+
+                position: absolute;
+
+                padding: 10px;
+
+                width: 100%;
+
+                text-align: center;
+
+                color: #FF3D39;
+
+            }
+
+
+
+
+}        </style>
+
+    </head>
+
+    <body>
+
+
+
+       <div id="info">Parcial<br/>
+
+            Seleccionar con teclas X, Y o Z el eje de rotacion.<br/>
+
+            Rotar con flecha arriba/abajo<br/>
+
+        </div>
+
+    <script src="js/three.min.js"></script>
+
+    <script>
+
+		var scene, aspect, camera, renderer;
+
+		var geometry;
+
+		var object;
+
+		var startTime = Date.now();
+
+		var upArrow = false;
+
+		var downArrow = false;
+
+		var leftArrow = false;
+
+		var rightArrow = false;
+
+		var sButton = false;
+
+		var wButton = false;
+
+		var xAxis = true;
+
+		var yAxis = false;
+
+		var zAxis = false;
+
+		
+		init();
+
+		animate();
+
+	
+		function init(){
+
+			scene = new THREE.Scene();
+
+
+			scene.background = new THREE.Color(0xf0f0f0);
+			aspect = window.innerWidth / window.innerHeight;
+
+			camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1000);
+
+			renderer = new THREE.WebGLRenderer();
+
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
+
+			
+			document.body.appendChild( renderer.domElement );
+
+				  			
+			//EVENTOS DE TECLADO
+
+			
+			var onKeyDown = function ( event ) {
+
+				switch ( event.keyCode ) {
+
+					case 38: // Y POSITIVE - UP ARROW
+
+						upArrow = true;
+
+						break;
+
+					case 40: // Y NEGATIVE - DOWN ARROW
+
+						downArrow = true;
+
+						break;
+
+
+					case 88: // SELECCIONAR EJE X DE ROTACION
+
+						xAxis = true;
+
+						yAxis = false;
+
+						zAxis = false;
+
+						break;
+
+					case 89: // SELECCIONAR EJE Y DE ROTACION
+
+						xAxis = false;
+
+						yAxis = true;
+
+						zAxis = false;
+
+						break;
+
+					case 90: // SELECCIONAR EJE Z DE
+ 
+						xAxis = false;
+
+						yAxis = false;
+
+						zAxis = true;
+
+						break;
+
+				}
+
+			};
+	  
+		  	var onKeyUp = function ( event ) {
+
+				upArrow = false;
+
+				downArrow = false;
+
+			};
+	  	
+			
+			document.addEventListener( 'keydown', onKeyDown, false );
+
+			document.addEventListener( 'keyup', onKeyUp, false );
+
+			
+			//ELEMENTOS DE ESCENA
+
+			var size = 10;
+
+			var arrowSize = 1;
+
+			var divisions = size;
+
+
+			var origin = new THREE.Vector3( 0, 0, 0 );
+
+			var x = new THREE.Vector3( 1, 0, 0 );
+
+			var y = new THREE.Vector3( 0, 1, 0 );
+
+		  	var z = new THREE.Vector3( 0, 0, 1 );
+
+			var color1 = new THREE.Color( 0xFFFFFF );
+
+		  	var color2 = new THREE.Color( 0x333333 );
+
+		  	var colorR = new THREE.Color( 0xAA0000 );
+
+		  	var colorG = new THREE.Color( 0x00AA00 );
+
+		  	var colorB = new THREE.Color( 0x0000AA );
+
+			var colorRd = new THREE.Color( 0xAA6666 );
+
+		  	var colorGd = new THREE.Color( 0x66AA66 );
+
+		  	var colorBd = new THREE.Color( 0x6666AA );
+
+		  
+		  	//CREAR LAS GRILLAS PARA EL ESCENARIO
+
+		  	var axesHelper = new THREE.AxesHelper( size );
+
+		  	var gridHelperXY = new THREE.GridHelper( size, divisions, color1, color1);
+
+		  	var gridHelperXZ = new THREE.GridHelper( size, divisions, color2, color2 );
+
+		  	var gridHelperYZ = new THREE.GridHelper( size, divisions, color2, color2 );
+
+            
+            //ROTARLAS PARA QUE QUEDEN EN EL ESPACIO ADECUADO
+
+            gridHelperXY.rotateOnWorldAxis ( x, THREE.Math.degToRad(90) );
+
+            gridHelperXZ.rotateOnWorldAxis ( y, THREE.Math.degToRad(90) );
+
+            gridHelperYZ.rotateOnWorldAxis ( z, THREE.Math.degToRad(90) );
+
+            
+            //CREAR LAS FLECHAS QUE INDICAN LOS EJES DE COORDENADAS 3D
+
+            var arrowX = new THREE.ArrowHelper( x, origin, arrowSize, colorR );
+
+            var arrowY = new THREE.ArrowHelper( y, origin, arrowSize, colorG );
+
+            var arrowZ = new THREE.ArrowHelper( z, origin, arrowSize, colorB );
+
+			
+			//CREAR LAS GEOMETRÍAS
+
+
+						//BLOQUE A
+
+			geometry1 = new THREE.BoxGeometry( 1.3, 2, 0.2 );
+
+
+			geometry2 = new THREE.BoxGeometry( 1.3, 1.8, 1 );
+
+
+			geometry3 = new THREE.BoxGeometry( 1.5, .2, .5 );
+
+
+						//BLOQUE B,C,D
+			geometry4 = new THREE.BoxGeometry( 1.2, 1, 1.7 );
+
+						//ENTRADAS
+			geometry5 = new THREE.BoxGeometry( .4, .8, .3 );
+			geometry6 = new THREE.BoxGeometry( 4, .8, .3 );
+
+						//BLOQUE E
+			geometry7 = new THREE.BoxGeometry( 5, 2, .8 );
+
+						//sala
+			geometry8 = new THREE.BoxGeometry( 2.4, 1, 1.7 );
+
+
+			geometry9 = new THREE.PlaneGeometry( 3, 1.5, 32 );
+
+
+			geometry10 = new THREE.CylinderGeometry( .3, .3, .7, 32,1,0,-1.5,3.1)
+
+			geometry11 = new THREE.SphereGeometry( .5,32,32);
+
+			geometry12 = new THREE.BoxGeometry( .6, .3, .7 );
+
+
+						
+
+				
+			//CREAR LOS MATERIALES
+
+
+
+
+			var material = new THREE.MeshBasicMaterial( { color: 0xE29B81 } );//COLOR LADRILLO
+			var material5 = new THREE.MeshBasicMaterial( { color: 0xE68260 } );//COLOR LADRILLO2			
+			var material6 = new THREE.MeshBasicMaterial( { color: 0xE6A885 } );//COLOR LADRILLO3
+			var material7 = new THREE.MeshBasicMaterial( { color: 0xE69485 } );//COLOR LADRILLO4
+
+
+			var material2 = new THREE.MeshBasicMaterial( { color: 0x000000 } );//VIDRIOS
+			var material3 = new THREE.MeshBasicMaterial( { color: 0xE6714A } );//COLOR LADRILLO2
+			var material8 = new THREE.MeshBasicMaterial( { color: 0xF5C222 } );//COLOR LADRILLO2
+			var material4 = new THREE.MeshBasicMaterial( { color: 0x61AAE8, side: THREE.DoubleSide } );//BLANCO
+
+
+
+
+			
+			//CREAR LOS OBJETOS
+
+
+
+			esfera = new THREE.Mesh( geometry11, material8 );
+
+
+			esfera.translateOnAxis( new THREE.Vector3(1, 1, 1).normalize(), 2 );
+		
+						// BLOQUE A
+			bloque_a1 = new THREE.Mesh( geometry1, material );
+
+
+			bloque_a2 = new THREE.Mesh( geometry1, material );
+
+
+			bloque_a3 = new THREE.Mesh( geometry2, material2 );
+
+
+			bloque_a4 = new THREE.Mesh( geometry3, material );
+
+
+
+						//BLOQUE B
+			bloque_b = new THREE.Mesh( geometry4, material5 );
+
+
+
+						//BLOQUE C
+			bloque_c = new THREE.Mesh( geometry4, material6 );
+
+
+						//BLOQUE D
+			bloque_d = new THREE.Mesh( geometry4, material7 );
+
+
+						//BLOQUE E
+			bloque_e = new THREE.Mesh( geometry7, material );
+
+
+
+			piso = new THREE.Mesh( geometry9, material4 );
+
+
+			piso2 = new THREE.Mesh( geometry9, material4 );
+
+
+
+			cilindro = new THREE.Mesh( geometry10, material2 );
+
+
+
+			comedor = new THREE.Mesh( geometry12, material2 );
+
+
+
+			cilindro2 = new THREE.Mesh( geometry10, material2 );
+
+
+			biblio = new THREE.Mesh( geometry12, material2 );
+
+
+						//ENTRADAS
+			entrada1 = new THREE.Mesh( geometry5, material3 );
+			entrada2 = new THREE.Mesh( geometry5, material3 );
+			entrada3 = new THREE.Mesh( geometry6, material3 );
+
+
+
+						//sala
+			sala = new THREE.Mesh( geometry8, material );
+
+
+						//transladar objetos
+
+			bloque_a1.position.set(5, 1, .6);
+			bloque_a2.position.set(5, 1, -.6);
+			bloque_a3.position.set(5, 1, 0);
+			bloque_a4.position.set(3.7, .1, 0);
+
+			bloque_b.position.set(2.3, .5, -.3);
+			bloque_c.position.set(0, .5, -.3);
+			bloque_d.position.set(-2.3, .5, -.3);
+			bloque_e.position.set(-.3, 1, -1.3);
+			sala.position.set(-2, .5, 2.5);
+
+			entrada1.position.set(-2.3, .4, .7);
+			entrada2.position.set(2.3, .4, .7);
+			entrada3.position.set(.1, .4, .7);
+			cilindro.position.set(1.2, .4, -.2);
+			cilindro2.position.set(-1.2, .4, -.2);
+			comedor.position.set(1.2, .4, -.2);
+			biblio.position.set(-1.2, .4, -.2);
+			cilindro.rotation.y=0;
+			cilindro.rotation.x=30;
+			cilindro2.rotation.x=30;
+			var pi=3.1415;
+			piso.rotation.x=pi/2;
+			piso2.rotation.x=pi/2;
+			piso.position.set(3,0,2.4);
+			piso2.position.set(3,0,4);
+			esfera.position.set(4, 3, 0);
+
+			
+
+						//AGREGAR A LA ESCENA
+
+
+
+
+           			scene.add( gridHelperXZ );
+
+		  		scene.add( arrowX );
+	
+		  	scene.add( arrowY );
+	
+		  	scene.add( arrowZ );
+	
+			scene.add( bloque_a1 );
+
+	
+			scene.add( bloque_a2 );
+	
+			scene.add( bloque_a3 );
+	
+			scene.add( bloque_a4 );
+	
+			scene.add( bloque_b );
+	
+			scene.add( bloque_c );
+	
+			scene.add( bloque_d );
+	
+			scene.add( entrada1 );
+	
+			scene.add( entrada2 );
+	
+			scene.add( entrada3 );
+				scene.add( bloque_e );
+				scene.add( sala );
+				scene.add( cilindro );
+				scene.add( esfera );
+				scene.add( comedor );
+				scene.add( cilindro2 );
+				scene.add( biblio );
+				scene.add( piso );
+				scene.add( piso2 );
+			
+			//MOVER LA CAMARA
+
+			camera.position.x = 5;
+
+			camera.position.y = 10;
+	 
+		camera.position.z = 10;
+			camera.translateOnAxis( new THREE.Vector3(1, 1, 1).normalize(), 2 );
+			
+camera.lookAt( origin );
+
+			}
+
+    
+    function animate() {
+
+	var o=0.01;
+	var u = new THREE.Euler(0,o,0,'XYZ');
+
+
+	esfera.position.applyEuler(u);
+
+        render();
+
+       requestAnimationFrame( animate );
+
+    }
+
+    
+    function render(){
+
+        var dtime = Date.now()-startTime;
+
+		var t=0;
+
+		
+		if(upArrow) {
+
+			t=0.09;
+
+		}
+
+		if(downArrow) {
+
+			t=-0.09;
+
+		}
+
+
+		//ROTACIÓN EN EJE X
+
+		if(xAxis){
+
+			var a = new THREE.Euler(t,0,0,'XYZ');
+
+		}
+
+		//ROTACIÓN EN EJE Y
+
+		else if(yAxis){
+
+			var a = new THREE.Euler(0,t,0,'XYZ');
+
+		}
+
+		//ROTACIÓN EN EJE Z
+
+		else if (zAxis){
+
+			var a = new THREE.Euler(0,0,t,'XYZ');
+
+		}
+
+
+		
+		camera.position.applyEuler(a);
+
+        camera.lookAt( 0, 0, 0 );
+
+        renderer.render( scene, camera );
+
+    }
+
+    </script>
+
+  </body>
+
+</html>
